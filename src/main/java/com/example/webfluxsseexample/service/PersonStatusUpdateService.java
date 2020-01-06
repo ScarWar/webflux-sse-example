@@ -6,8 +6,6 @@ import static org.springframework.data.mongodb.core.query.Criteria.where;
 
 import com.example.webfluxsseexample.event.PersonUpdateEvent;
 import com.example.webfluxsseexample.model.PersonStatus;
-import java.time.Instant;
-import java.util.Date;
 import java.util.Objects;
 import javax.annotation.PostConstruct;
 import org.springframework.data.mongodb.core.ChangeStreamEvent;
@@ -29,8 +27,8 @@ public class PersonStatusUpdateService {
 
   @PostConstruct
   void initUpdateStream() {
-    this.changeStream = reactiveTemplate
-        .changeStream("personStatus", ChangeStreamOptions.builder()
+    this.changeStream = reactiveTemplate.changeStream(
+        "personStatus", ChangeStreamOptions.builder()
             .filter(newAggregation(match(where("operationType").is("insert"))))
             .build(), PersonStatus.class);
   }
@@ -40,9 +38,11 @@ public class PersonStatusUpdateService {
       PersonStatus body = event.getBody();
       Objects.requireNonNull(body);
       return PersonUpdateEvent.builder()
-          .personId(body.getId())
-          .updateDate(Date.from(Instant.now()))
+          .id(body.getId())
+          .personId(body.getPersonId())
+          .updateDate(body.getUpdateDate())
           .location("ariel")
+          .status(body.getStatus())
           .build();
     });
   }
