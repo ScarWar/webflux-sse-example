@@ -30,7 +30,7 @@ public class PersonStatusUpdateService {
     this.changeStream = reactiveTemplate.changeStream(
         "personStatus", ChangeStreamOptions.builder()
             .filter(newAggregation(match(where("operationType").is("insert"))))
-            .build(), PersonStatus.class);
+            .build(), PersonStatus.class).share();
   }
 
   public Flux<PersonUpdateEvent> getChangeStream() {
